@@ -25,7 +25,7 @@ public class Missile : MonoBehaviour
     }
 
     // 적과 충돌 시 처리
-    private void OriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag == "Enemy")
         {

@@ -20,8 +20,8 @@ public class Coin : MonoBehaviour
     {
         if (collision.tag == "Player")
         {
-            //GameManager.Instance.ShowCoinCount();
-            Destroy(gameObject);
+            GameManager.Instance.ShowCoinCount(); // 코인 개수 표시
+            Destroy(gameObject); // 코인 오브젝트 삭제
         }
     }
 }
