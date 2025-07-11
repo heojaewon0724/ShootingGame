@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
 
 public class GameManager : MonoBehaviour
 {
-    public int coin = 0; // 현재 코인 개수
+    public int coin = 100; // 현재 코인 개수
     public TextMeshProUGUI textMeshProCoin; // 코인 개수를 표시할 텍스트
     public static GameManager Instance { get; private set; } // 싱글톤 인스턴스
     public GameObject gameOverPanel; // 게임 오버 UI 패널
+    public GameObject clearPanel; // 게임 오버 UI 패널
     public GameObject retryButton;
     public TextMeshProUGUI[] top3Texts; // 탑3 기록 표시용 텍스트 배열
-
+    public Image SkillCoolPanel;
 
     void Awake()
     {
@@ -23,11 +26,13 @@ public class GameManager : MonoBehaviour
             //DontDestroyOnLoad(gameObject); // 씬이 바뀌어도 파괴되지 않음
             retryButton.SetActive(false);
             gameOverPanel.SetActive(false);
+            clearPanel.SetActive(false);
         }
         else
         {
             Destroy(gameObject); // 이미 인스턴스가 있으면 중복 파괴
         }
+        
     }
 
 
@@ -46,6 +51,20 @@ public class GameManager : MonoBehaviour
                 player.MissileUp(); // 2개마다 미사일 업그레이드
             }
         }
+    }
+
+    public void ShowCool(float cooldownRemaining)
+    {
+        SkillCoolPanel.fillAmount = cooldownRemaining;
+    }
+    public void Clear()
+    {
+        Debug.Log("클리어!");
+        clearPanel.SetActive(true);
+        retryButton.SetActive(true);
+
+        SaveScore(coin);
+        DisplayTop3();
     }
 
     // 게임 오버 처리

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -20,9 +21,17 @@ public class Player : MonoBehaviour
     // 미사일 발사 간격(초)
     [SerializeField]
     private float shootInverval = 0.05f;
+    
 
     // 마지막 발사 시간
     private float lastshotTime = 0f;
+
+    [SerializeField]
+    private float SpecialshootInverval = 5f;
+
+    public static float SpecialCool = 0f;
+    // 마지막 발사 시간
+    private float SpeciallastshotTime = 0f;
 
     // 애니메이터 컴포넌트 참조
     private Animator animator;
@@ -30,11 +39,13 @@ public class Player : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>(); // Animator 컴포넌트 가져오기
+
     }
 
     // 매 프레임마다 이동 및 발사 처리
     void Update()
     {
+        float Jump = Input.GetAxisRaw("Jump");
         float horizontalInput = Input.GetAxisRaw("Horizontal");
         Debug.Log("Horizontal Input: " + horizontalInput); // 디버그용 로그 출력
         Vector3 moveTo = new Vector3(horizontalInput, 0, 0);
@@ -55,16 +66,46 @@ public class Player : MonoBehaviour
             animator.Play("Idle"); // 가운데(정지) 애니메이션
         }
         Shoot(); // 미사일 발사
+        if (Jump == 1) // 1: 우클릭, 0: 좌클릭, 2: 휠클릭
+        {
+            Debug.Log("스페이스바 감지!");
+            SpecialShoot();
+        }
+        if ((Time.time - SpeciallastshotTime) / SpecialshootInverval >= 1)
+        {
+            SpecialCool = 1;
+        }
+        else
+        {
+           SpecialCool = (Time.time - SpeciallastshotTime) / SpecialshootInverval;
+        }
+        GameManager.Instance.ShowCool(SpecialCool);
 
     }
 
     // 미사일 발사 함수
     void Shoot()
     {
-        if (Time.time - lastshotTime > shootInverval)
+        if (Time.time - lastshotTime>shootInverval)
         {
             Instantiate(missilePrefab[missIndex], spPostion.position, Quaternion.identity);
             lastshotTime = Time.time; // 미사일 발사 시간 갱신
+        }
+    }
+    void SpecialShoot()
+    {
+            Vector3 SpecialspPos1 = spPostion.position;
+            Vector3 SpecialspPos2 = spPostion.position;
+            SpecialspPos1.x -= 0.5f;
+            SpecialspPos2.x += 0.5f;
+
+        if (Time.time - SpeciallastshotTime > SpecialshootInverval)
+        {
+            Instantiate(missilePrefab[missIndex], SpecialspPos1, Quaternion.identity);
+            Instantiate(missilePrefab[missIndex], SpecialspPos2, Quaternion.identity);
+            Instantiate(missilePrefab[missIndex], spPostion.position, Quaternion.identity);
+            SpeciallastshotTime = Time.time; // 미사일 발사 시간 갱신
+
         }
     }
 
@@ -84,11 +125,16 @@ public class Player : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
-{
-    if (collision.CompareTag("Enemy")) // 몬스터 태그로 비교
     {
-        Destroy(gameObject); // 플레이어 제거        
-        GameManager.Instance.GameOver();
+        if (collision.CompareTag("Enemy")) // 몬스터 태그로 비교
+        {
+            Destroy(gameObject); // 플레이어 제거        
+            GameManager.Instance.GameOver();
+        }
+        if (GameManager.Instance.coin >= 100)
+        {
+            GameManager.Instance.Clear();
+        }
     }
 }
-}
+

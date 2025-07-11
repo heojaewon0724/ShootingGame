@@ -22,6 +22,8 @@ public class Coin : MonoBehaviour
         {
             GameManager.Instance.ShowCoinCount(); // 코인 개수 표시
             Destroy(gameObject); // 코인 오브젝트 삭제
+
         }
+        
     }
 }
